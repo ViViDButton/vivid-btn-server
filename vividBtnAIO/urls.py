@@ -20,6 +20,7 @@ from configparser import ConfigParser
 
 from vividBtn import views as vbv
 from AIO_auth import views as auth_v
+from AIO_auth import permission
 
 config = ConfigParser()
 config.read('config/config.ini', encoding='UTF-8')
@@ -45,15 +46,21 @@ urlpatterns = [
     re_path(r'^change-user-status$', auth_v.change_status),
     re_path(r'^delete-user$', auth_v.delete_user),
     re_path(r'^add-user$', auth_v.add_user),
+
+    # 权限管理
+    re_path(r'^get-group-list$', permission.get_group_list),
 ]
 
 
 if config['Common']['develop_mode'] == 'True':
     urlpatterns = urlpatterns + [
         # 请不要在生产环境打开本功能
+        re_path(r'^admin$', admin.site.urls),
         re_path(r'^del-all$', vbv.del_all),
         re_path(r'^c-u$', auth_v.no_create_usr),
         re_path(r'^d-u$', auth_v.no_del_usr),
         re_path(r'^g-u$', auth_v.get_user),
         re_path(r'^l-u$', auth_v.login),
-        re_path(r'^t-u$', auth_v.test), ]
+        re_path(r'^t-u$', auth_v.test),
+        re_path(r'^t$', permission.get_permission_list),
+    ]

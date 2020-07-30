@@ -6,6 +6,7 @@ class Vtuber(models.Model):
     name = models.CharField(max_length=128,primary_key=True)
     bilibili_uid = models.IntegerField()
     youtube_id = models.CharField(max_length=128)
+    twitter_id = models.CharField(max_length=128, default='')
 
 
 class VoiceGroup(models.Model):
@@ -25,3 +26,15 @@ class Voice(models.Model):
     update_time = models.DateTimeField(auto_now=True)
     translate = models.TextField()
 
+
+class Translate(models.Model):
+    name = models.CharField(max_length=128)
+    group = models.CharField(max_length=32)
+    zh = models.CharField(max_length=128)
+    ja = models.CharField(max_length=128)
+    en = models.CharField(max_length=128)
+
+
+class Basic(models.Model):
+    key = models.CharField(max_length=128, primary_key=True)
+    value = models.CharField(max_length=128)

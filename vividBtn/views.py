@@ -126,7 +126,6 @@ def get_voice(request):
         }
         return utils.response_json(response)
 
-
     groups = VoiceGroup.objects.filter(vtb_name=vtb)
     data = Voice.objects.filter(vtb_name=vtb)
     if not data:
