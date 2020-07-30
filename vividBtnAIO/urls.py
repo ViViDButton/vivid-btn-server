@@ -49,6 +49,7 @@ urlpatterns = [
 
     # 权限管理
     re_path(r'^get-group-list$', permission.get_group_list),
+    re_path(r'^get-permission-list$', permission.get_permission_list),
 ]
 
 
@@ -62,5 +63,5 @@ if config['Common']['develop_mode'] == 'True':
         re_path(r'^g-u$', auth_v.get_user),
         re_path(r'^l-u$', auth_v.login),
         re_path(r'^t-u$', auth_v.test),
-        re_path(r'^t$', permission.get_permission_list),
+        re_path(r'^t$', permission.set_group_permission),
     ]
