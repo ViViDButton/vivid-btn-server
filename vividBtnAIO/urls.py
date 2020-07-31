@@ -20,36 +20,39 @@ from configparser import ConfigParser
 
 from vividBtn import views as vbv
 from AIO_auth import views as auth_v
-from AIO_auth import permission
+
+from vividBtn import group, voice, vtuber
+from AIO_auth import permission, user
 
 config = ConfigParser()
 config.read('config/config.ini', encoding='UTF-8')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    re_path(r'^add-voice$', vbv.add_voice_data),
-    re_path(r'^get-voice$', vbv.get_voice),
-    re_path(r'^add-vtuber$', vbv.add_vtuber),
-    re_path(r'^add-group$', vbv.add_group),
+    re_path(r'^add-voice$', voice.add_voice_data),
+    re_path(r'^get-voice$', voice.get_voice),
+    re_path(r'^add-vtuber$', vtuber.add_vtuber),
+    re_path(r'^add-group$', group.add_group),
     re_path(r'^count$', vbv.item_click),
-    re_path(r'^get-vtb$', vbv.get_vtb),
-    re_path(r'^get-group$', vbv.get_group),
-    re_path(r'^del-voice$', vbv.delete_voice),
-    re_path(r'^del-group$', vbv.delete_group),
-    re_path(r'^del-vtb$', vbv.delete_vtb),
+    re_path(r'^get-vtb$', vtuber.get_vtb),
+    re_path(r'^get-group$', group.get_group),
+    re_path(r'^del-voice$', voice.delete_voice),
+    re_path(r'^del-group$', group.delete_group),
+    re_path(r'^del-vtb$', vtuber.delete_vtb),
 
     # 用户认证类
-    re_path(r'^get-login-status$', auth_v.get_login_status),
-    re_path(r'^user-login$', auth_v.user_login),
-    re_path(r'^user-logout$', auth_v.user_logout),
-    re_path(r'^list-user$', auth_v.list_user),
-    re_path(r'^change-user-status$', auth_v.change_status),
-    re_path(r'^delete-user$', auth_v.delete_user),
-    re_path(r'^add-user$', auth_v.add_user),
+    re_path(r'^get-login-status$', user.get_login_status),
+    re_path(r'^user-login$', user.user_login),
+    re_path(r'^user-logout$', user.user_logout),
+    re_path(r'^list-user$', user.list_user),
+    re_path(r'^change-user-status$', user.change_status),
+    re_path(r'^delete-user$', user.delete_user),
+    re_path(r'^add-user$', user.add_user),
 
     # 权限管理
     re_path(r'^get-group-list$', permission.get_group_list),
     re_path(r'^get-permission-list$', permission.get_permission_list),
+    re_path(r'^add-permission-group$', permission.add_permission_group),
+    re_path(r'^delete-permission-group$', permission.del_permission_group),
 ]
 
 
