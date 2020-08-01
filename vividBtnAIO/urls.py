@@ -38,6 +38,7 @@ urlpatterns = [
     re_path(r'^del-voice$', voice.delete_voice),
     re_path(r'^del-group$', group.delete_group),
     re_path(r'^del-vtb$', vtuber.delete_vtb),
+    re_path(r'^change-voice$', voice.change_voice),
 
     # 用户认证类
     re_path(r'^get-login-status$', user.get_login_status),
@@ -53,6 +54,10 @@ urlpatterns = [
     re_path(r'^get-permission-list$', permission.get_permission_list),
     re_path(r'^add-permission-group$', permission.add_permission_group),
     re_path(r'^delete-permission-group$', permission.del_permission_group),
+
+    # 批量添加接口
+    re_path(r'^get-default-voice$', voice.get_default_voice),
+    re_path(r'^get-all-group$', group.get_all_group),
 ]
 
 
@@ -66,5 +71,5 @@ if config['Common']['develop_mode'] == 'True':
         re_path(r'^g-u$', auth_v.get_user),
         re_path(r'^l-u$', auth_v.login),
         re_path(r'^t-u$', auth_v.test),
-        re_path(r'^t$', permission.set_group_permission),
+        re_path(r'^t$', voice.batch_upload),
     ]

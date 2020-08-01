@@ -23,6 +23,7 @@ def get_group(request):
         group_list.append({'id': id, 'name': name, 'translate': json.loads(translate), 'click_count': click_count})
     return response_json({'code': 200, 'vtb-name': vtb, 'groups': group_list})
 
+
 def add_group(request):
     if request.method == 'GET':
         return response_json({'message': '请使用POST方法'}, 403)
@@ -52,3 +53,20 @@ def delete_group(request):
     group.delete()
     Voice.objects.filter(vtb_name=name).delete()
     return response_json({'code': 200, 'message': '删除成功'})
+
+
+# 获取全部分组
+def get_all_group(request):
+    vtubers = Vtuber.objects.all()
+    all_group_list = {}
+    for vtuber in vtubers:
+        name = vtuber.name
+        groups = VoiceGroup.objects.filter(vtb_name=name)
+        group_list = []
+        for group in groups:
+            group_list.append({
+                'name': group.group_name,
+                'id': group.id
+            })
+        all_group_list[name] = group_list
+    return response_json({'code': 200, 'message': '操作成功', 'data': all_group_list})

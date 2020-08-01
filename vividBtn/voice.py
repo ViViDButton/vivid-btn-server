@@ -1,4 +1,4 @@
-from vividBtnAIO.utils import upyunAccount, response_json
+from vividBtnAIO.utils import upyunAccount, response_json, handle_pic_upload
 from DataBaseModel.models import Voice, VoiceGroup, Vtuber
 import json
 import upyun
@@ -22,34 +22,13 @@ def add_voice_data(request):
     file_obj = request.FILES.get('file')
 
     # 文件类型校验
-    try:
-        file_name = file_obj.name.replace('"', ' ').rstrip().lstrip()
-        file_name_splited = file_name.split('.')
-        extend_name = file_name_splited[len(file_name_splited) - 1].rstrip().lstrip()
-        extend_name_list = ['mp3', 'wav']
-    except:
-        return response_json({'message': '无法解析文件'}, 403)
-    if not (extend_name in extend_name_list):
-        return response_json({'message': '不允许的文件格式'}, 403)
 
-    # 文件保存
-    f = open('cache/' + file_name, 'wb')
-    for chuck in file_obj.chunks():
-        f.write(chuck)
-    f.close()
+    url = handle_pic_upload(file_obj, vtb_name=vtb_name, group=group)
 
-    # 文件上传
-    headers = {}
-    with open('cache/' + file_name, 'rb') as f:
-        try:
-            res = up.put(file_path + vtb_name + '/voice/' + group + '/' + file_name, f, checksum=True,
-                         headers=headers)
-            res = up.getinfo(file_path + vtb_name + '/voice/' + group + '/' + file_name)
-            print(res)
-        except Exception as e:
-            print(str(e))
-            return response_json({'message': '上传失败', 'error': str(e)}, 403)
-    url = 'https://' + upyun_url + file_path + vtb_name + '/voice/' + group + '/' + file_name
+    if url['code'] == 403:
+        return response_json(url)
+
+    url = url['url']
 
     version = request.POST.get('ver')
     count = 0
@@ -68,7 +47,62 @@ def add_voice_data(request):
     return response_json({'message': '操作成功', 'file_locate': url})
 
 
-#
+# 批量上传
+def batch_upload(request):
+    if not request.user.has_perm('DataBaseModel.add_voice'):
+        return response_json({'code': 403, 'message': '权限不足'})
+    upload_resp = handle_pic_upload(request.FILES.get('file'))
+    if request.POST.get('vtuber') != '':
+        vtb_name = request.POST.get('vtuber')
+    else:
+        vtb_name = 'default'
+    name = upload_resp['file_name']
+    url = upload_resp['url']
+
+    voice = Voice(vtb_name=vtb_name, name=name, group='default', url=url, count=0)
+    voice.save()
+
+    return response_json({'code': 200})
+
+
+# 查询default分组
+def get_default_voice(request):
+    if request.GET.get('vtb'):
+        vtb = request.GET.get('vtb')
+        res = Voice.objects.filter(vtb_name=vtb, group='default')
+    else:
+        res = Voice.objects.filter(group='default')
+    res_list = []
+    for item in res:
+        res_list.append({
+            'name': item.name,
+            'vtuber': item.vtb_name,
+            'group': item.group,
+            'id': item.id,
+            'url': item.url
+        })
+    return response_json({'code': 200, 'message': '操作成功', 'data': res_list})
+
+
+# 变更voice属性
+def change_voice(request):
+    if not request.user.has_perm('DataBaseModel.change_voice'):
+        return response_json({'code': 403, 'message': '权限不足'})
+    to_change_id = int(request.POST.get('aim'))
+    obj = Voice.objects.get(id=to_change_id)
+    if request.POST.get('vtb'):
+        obj.vtb_name = request.POST.get('vtb')
+        obj.group = 'default'
+    if request.POST.get('group'):
+        obj.group = request.POST.get('group')
+    if request.POST.get('name'):
+        obj.name = request.POST.get('name')
+    obj.save()
+    return response_json({'code': 200, 'message': '操作成功'})
+
+
+# TODO: 更新翻译系统
+# 查询语音
 def get_voice(request):
     vtb = request.GET.get('vtb-name')
     if request.GET.get('group'):
@@ -85,7 +119,7 @@ def get_voice(request):
                 'name': voice.name,
                 'path': voice.url,
                 'click_count': voice.count,
-                'translation': json.loads(voice.translate)
+                'translation': 'json.loads(voice.translate)'
             }
             group.append(tmp)
         response = {
@@ -107,15 +141,14 @@ def get_voice(request):
         name = group.group_name
         voices = Voice.objects.filter(group=name, vtb_name=vtb)
         for voice in voices:
-            tmp = {
+            voice_list.append({
                 'data_id': voice.id,
-                'update': voice.version,
+                'update': 'voice.version',
                 'name': voice.name,
                 'path': voice.url,
                 'click_count': voice.count,
-                'translation': json.loads(voice.translate)
-            }
-            voice_list.append(tmp)
+                'translation': 'json.loads(voice.translate)'
+            })
         group_item = {
             'name': group.group_name,
             'translation': json.loads(group.translate),

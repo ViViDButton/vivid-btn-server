@@ -40,13 +40,17 @@ def list_user(request):
     all_user = User.objects.all()
     user_list = []
     for i in all_user:
+        try:
+            group = i.groups.all().first().name
+        except:
+            group = ''
         tmp = {
             'id': i.id,
             'name': i.username,
             'first_name': i.first_name,
             'last_name': i.last_name,
             'is_super': i.is_superuser,
-            'group': i.groups.all().first().name,
+            'group': group,
             'email': i.email,
             'is_active': i.is_active
         }
@@ -104,3 +108,5 @@ def add_user(request):
     except Exception as e:
         return response_json({'code': 403, 'message': '解析参数失败'})
     return response_json({'code': 200, 'message': '操作成功'})
+
+
