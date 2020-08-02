@@ -1,6 +1,6 @@
 from vividBtnAIO.utils import upyunAccount
 from vividBtnAIO import utils
-from DataBaseModel.models import Voice, VoiceGroup, Vtuber
+from DataBaseModel.models import Voice, VoiceGroup, Vtuber, Translate
 import json
 import upyun
 
@@ -24,4 +24,5 @@ def del_all(request):
     Voice.objects.all().delete()
     VoiceGroup.objects.all().delete()
     Vtuber.objects.all().delete()
+    Translate.objects.all().delete()
     return utils.response_json({'Warning': '删库跑路'})

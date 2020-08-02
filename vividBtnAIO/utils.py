@@ -4,6 +4,7 @@ import json
 import os
 from configparser import ConfigParser
 import upyun
+from DataBaseModel.models import Translate
 
 config = ConfigParser()
 config.read('config/config.ini', encoding='UTF-8')
@@ -63,3 +64,4 @@ def handle_pic_upload(file_obj):
             return {'code': 403, 'message': '上传失败', 'error': str(e)}
     url = 'https://' + upyun_url + file_path + 'voice/' + file_name
     return {'code': 200, 'url': url, 'file_name': file_name_no_extend.lstrip().rstrip()}
+

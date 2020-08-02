@@ -1,4 +1,5 @@
 from vividBtnAIO.utils import upyunAccount, response_json, handle_pic_upload
+from vividBtnTranslate import translate
 from DataBaseModel.models import Voice, VoiceGroup, Vtuber
 import json
 import upyun
@@ -21,9 +22,7 @@ def add_voice_data(request):
     group = request.POST.get('group-name')
     file_obj = request.FILES.get('file')
 
-    # 文件类型校验
-
-    url = handle_pic_upload(file_obj, vtb_name=vtb_name, group=group)
+    url = handle_pic_upload(file_obj)
 
     if url['code'] == 403:
         return response_json(url)
@@ -32,17 +31,16 @@ def add_voice_data(request):
 
     version = request.POST.get('ver')
     count = 0
-    zh = request.POST.get('zh')
-    ja = request.POST.get('ja')
-    en = request.POST.get('en')
+
+    translate.add_translate(request, name, 'voice')
+
     # 检查是否有本vtb
     if not Vtuber.objects.filter(name=vtb_name):
         return response_json({'message': '请先创建此vtuber'}, 403)
     if not VoiceGroup.objects.filter(group_name=group):
         return response_json({'message': '没有此分组!'}, 403)
-    translate = {'zh': zh, 'ja': ja, 'en': en}
     voice = Voice(vtb_name=vtb_name, name=name, group=group, url=url, version=version, count=count
-                  , translate=json.dumps(translate))
+                  , translate='')
     voice.save()
     return response_json({'message': '操作成功', 'file_locate': url})
 
@@ -58,6 +56,8 @@ def batch_upload(request):
         vtb_name = 'default'
     name = upload_resp['file_name']
     url = upload_resp['url']
+
+    translate.add_translate(request, name, 'voice')
 
     voice = Voice(vtb_name=vtb_name, name=name, group='default', url=url, count=0)
     voice.save()
@@ -119,12 +119,12 @@ def get_voice(request):
                 'name': voice.name,
                 'path': voice.url,
                 'click_count': voice.count,
-                'translation': 'json.loads(voice.translate)'
+                'translation': translate.get_translate(voice.name, 'voice')
             }
             group.append(tmp)
         response = {
             'name': groups.group_name,
-            'translation': json.loads(groups.translate),
+            'translation': translate.get_translate(groups.group_name, 'group'),
             'all_click_count': groups.all_count,
             'voicelist': group
         }
@@ -147,11 +147,11 @@ def get_voice(request):
                 'name': voice.name,
                 'path': voice.url,
                 'click_count': voice.count,
-                'translation': 'json.loads(voice.translate)'
+                'translation': translate.get_translate(voice.name, 'voice')
             })
         group_item = {
             'name': group.group_name,
-            'translation': json.loads(group.translate),
+            'translation': translate.get_translate(group.group_name, 'group'),
             'all_click_count': group.all_count,
             'voicelist': voice_list
         }
@@ -167,6 +167,6 @@ def delete_voice(request):
     if not request.user.has_perm('DataBaseModel.delete_voice'):
         return response_json({'code': 403, 'message': '权限不足'})
     id = request.GET.get('id')
-    Voice.objects.filter(id=id).delete()
+    Voice.objects.get(id=id).delete()
     return response_json({'code': 200, 'message': '删除成功'})
 
