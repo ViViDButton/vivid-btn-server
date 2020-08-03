@@ -65,3 +65,7 @@ def handle_pic_upload(file_obj):
     url = 'https://' + upyun_url + file_path + 'voice/' + file_name
     return {'code': 200, 'url': url, 'file_name': file_name_no_extend.lstrip().rstrip()}
 
+
+# 字符串转列表
+def to_list(string):
+    return string.replace('[', '').replace(']', '').split(',')

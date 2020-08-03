@@ -23,6 +23,7 @@ from AIO_auth import views as auth_v
 
 from vividBtn import group, voice, vtuber
 from AIO_auth import permission, user
+from vividBtnTranslate import translate
 
 config = ConfigParser()
 config.read('config/config.ini', encoding='UTF-8')
@@ -58,6 +59,11 @@ urlpatterns = [
     # 批量添加接口
     re_path(r'^get-default-voice$', voice.get_default_voice),
     re_path(r'^get-all-group$', group.get_all_group),
+
+    # 翻译工作台接口
+    re_path(r'^get-translate-list$', translate.get_translate_list),
+    re_path(r'^submit-translate-log$', translate.submit_translate_log),
+    re_path(r'^change-translate-status$', translate.change_status),
 ]
 
 

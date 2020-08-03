@@ -33,6 +33,8 @@ class Translate(models.Model):
     zh = models.CharField(max_length=128)
     ja = models.CharField(max_length=128)
     en = models.CharField(max_length=128)
+    status = models.CharField(max_length=32, default='translating')
+    translated = models.BooleanField(default=False)
 
 
 class Basic(models.Model):
