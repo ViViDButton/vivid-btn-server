@@ -57,6 +57,7 @@ urlpatterns = [
     re_path(r'^delete-permission-group$', permission.del_permission_group),
 
     # 批量添加接口
+    re_path(r'^batch-upload$', voice.batch_upload),
     re_path(r'^get-default-voice$', voice.get_default_voice),
     re_path(r'^get-all-group$', group.get_all_group),
 
