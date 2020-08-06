@@ -37,12 +37,19 @@ def add_translate(request, name, group):
 
 
 def get_translate(name, group):
-    translate = Translate.objects.get(name=name, group=group)
-    return {
-        'zh': translate.zh,
-        'ja': translate.ja,
-        'en': translate.en
-    }
+    try:
+        translate = Translate.objects.get(name=name, group=group)
+        return {
+            'zh': translate.zh,
+            'ja': translate.ja,
+            'en': translate.en
+        }
+    except:
+        return {
+            'zh': name,
+            'ja': name,
+            'en': name
+        }
 
 
 # FIXME: 有严重bug,暂时停用

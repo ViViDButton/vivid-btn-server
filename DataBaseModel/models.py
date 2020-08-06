@@ -25,6 +25,7 @@ class Voice(models.Model):
     count = models.IntegerField()
     update_time = models.DateTimeField(auto_now=True)
     translate = models.TextField()
+    tag = models.CharField(max_length=32, default='')
 
 
 class Translate(models.Model):

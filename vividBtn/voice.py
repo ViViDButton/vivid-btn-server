@@ -12,6 +12,23 @@ upyun_url = upyunAccount['upyun_url']
 file_path = upyunAccount['file_path']
 
 
+# Utils
+# 版本控制
+def version_control(vtb, next_ver):
+    if next_ver == '1':
+        try:
+            prew_ver_voice = Voice.objects.filter(vtb_name=vtb, tag='new')
+            for item in prew_ver_voice:
+                item.tag = ''
+                item.save()
+            return True
+        except:
+            print('更改失败')
+            return False
+    return True
+
+
+# API
 def add_voice_data(request):
     if request.method == 'GET':
         return response_json({'message': '请使用POST方法'}, 403)
@@ -21,6 +38,10 @@ def add_voice_data(request):
     name = request.POST.get('voice-name')
     group = request.POST.get('group-name')
     file_obj = request.FILES.get('file')
+
+    # 版本控制
+    if request.POST.get('next_ver'):
+        version_control(vtb_name, request.POST.get('next_ver'))
 
     url = handle_pic_upload(file_obj)
 
@@ -40,7 +61,7 @@ def add_voice_data(request):
     if not VoiceGroup.objects.filter(group_name=group):
         return response_json({'message': '没有此分组!'}, 403)
     voice = Voice(vtb_name=vtb_name, name=name, group=group, url=url, version=version, count=count
-                  , translate='')
+                  , translate='', tag='new')
     voice.save()
     return response_json({'message': '操作成功', 'file_locate': url})
 
@@ -59,7 +80,7 @@ def batch_upload(request):
 
     translate.add_translate(request, name, 'voice')
 
-    voice = Voice(vtb_name=vtb_name, name=name, group='default', url=url, count=0)
+    voice = Voice(vtb_name=vtb_name, name=name, group='default', url=url, count=0, tag='new')
     voice.save()
 
     return response_json({'code': 200})
@@ -79,7 +100,8 @@ def get_default_voice(request):
             'vtuber': item.vtb_name,
             'group': item.group,
             'id': item.id,
-            'url': item.url
+            'url': item.url,
+            'tag': item.tag
         })
     return response_json({'code': 200, 'message': '操作成功', 'data': res_list})
 
@@ -97,6 +119,8 @@ def change_voice(request):
         obj.group = request.POST.get('group')
     if request.POST.get('name'):
         obj.name = request.POST.get('name')
+    if request.POST.get('tag'):
+        obj.tag = request.POST.get('tag')
     obj.save()
     return response_json({'code': 200, 'message': '操作成功'})
 
@@ -115,11 +139,11 @@ def get_voice(request):
         for voice in voices:
             tmp = {
                 'data_id': voice.id,
-                'update': voice.version,
                 'name': voice.name,
                 'path': voice.url,
                 'click_count': voice.count,
-                'translation': translate.get_translate(voice.name, 'voice')
+                'translation': translate.get_translate(voice.name, 'voice'),
+                'tag': voice.tag
             }
             group.append(tmp)
         response = {
@@ -143,11 +167,11 @@ def get_voice(request):
         for voice in voices:
             voice_list.append({
                 'data_id': voice.id,
-                'update': 'voice.version',
                 'name': voice.name,
                 'path': voice.url,
                 'click_count': voice.count,
-                'translation': translate.get_translate(voice.name, 'voice')
+                'translation': translate.get_translate(voice.name, 'voice'),
+                'tag': voice.tag
             })
         group_item = {
             'name': group.group_name,
@@ -170,3 +194,13 @@ def delete_voice(request):
     Voice.objects.get(id=id).delete()
     return response_json({'code': 200, 'message': '删除成功'})
 
+
+# 清除版本
+def next_ver(request):
+    if not request.user.has_perm('DataBaseModel.add_voice'):
+        return response_json({'code': 403, 'message': '权限不足'})
+    vtb_name = request.POST.get('vtb')
+    # 版本控制
+    print(vtb_name)
+    version_control(vtb_name, '1')
+    return response_json({'code': 200, 'message': '操作成功'})

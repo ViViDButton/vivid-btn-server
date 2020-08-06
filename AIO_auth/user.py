@@ -40,10 +40,13 @@ def list_user(request):
     all_user = User.objects.all()
     user_list = []
     for i in all_user:
-        try:
-            group = i.groups.all().first().name
-        except:
-            group = ''
+        if i.is_superuser:
+            group = '系统管理员'
+        else:
+            try:
+                group = i.groups.all().first().name
+            except:
+                group = ''
         tmp = {
             'id': i.id,
             'name': i.username,

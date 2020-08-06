@@ -40,6 +40,7 @@ urlpatterns = [
     re_path(r'^del-group$', group.delete_group),
     re_path(r'^del-vtb$', vtuber.delete_vtb),
     re_path(r'^change-voice$', voice.change_voice),
+    re_path(r'^next-ver$', voice.next_ver),
 
     # 用户认证类
     re_path(r'^get-login-status$', user.get_login_status),
