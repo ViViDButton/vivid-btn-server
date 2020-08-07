@@ -43,7 +43,7 @@ def add_voice_data(request):
     if request.POST.get('next_ver'):
         version_control(vtb_name, request.POST.get('next_ver'))
 
-    url = handle_pic_upload(file_obj)
+    url = handle_pic_upload(file_obj, vtb_name)
 
     if url['code'] == 403:
         return response_json(url)
@@ -70,11 +70,11 @@ def add_voice_data(request):
 def batch_upload(request):
     if not request.user.has_perm('DataBaseModel.add_voice'):
         return response_json({'code': 403, 'message': '权限不足'})
-    upload_resp = handle_pic_upload(request.FILES.get('file'))
     if request.POST.get('vtuber') != '':
         vtb_name = request.POST.get('vtuber')
     else:
         vtb_name = 'default'
+    upload_resp = handle_pic_upload(request.FILES.get('file'), vtb_name)
     name = upload_resp['file_name']
     url = upload_resp['url']
 

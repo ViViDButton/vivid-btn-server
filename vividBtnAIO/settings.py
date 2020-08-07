@@ -120,9 +120,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = config['Common']['CORS_ORIGIN_WHITELIST'].replace('\'', '').replace(' ', '').split(',')
+CORS_ORIGIN_WHITELIST = config['Common']['Allow_ip'].replace('\'', '').replace(' ', '').split(',')
+ALLOWED_HOSTS = ['*']
 CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SAMESITE = None
 CSRF_COOKIE_SAMESITE = None

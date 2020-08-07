@@ -35,7 +35,7 @@ def redirect(url):
 
 
 # FIXME: 文件重复处理
-def handle_pic_upload(file_obj):
+def handle_pic_upload(file_obj, vtb):
     try:
         file_name = file_obj.name.replace('"', ' ').rstrip().lstrip()
         file_name_splited = file_name.split('.')
@@ -57,12 +57,12 @@ def handle_pic_upload(file_obj):
     headers = {}
     with open('cache/' + file_name, 'rb') as f:
         try:
-            res = up.put(file_path + '/voice/' + file_name, f, checksum=True,
+            res = up.put(file_path + '/voice/' + vtb + '/' + file_name, f, checksum=True,
                          headers=headers)
-            res = up.getinfo(file_path + '/voice/' + file_name)
+            # res = up.getinfo(file_path + '/voice/' + file_name)
         except Exception as e:
             return {'code': 403, 'message': '上传失败', 'error': str(e)}
-    url = 'https://' + upyun_url + file_path + 'voice/' + file_name
+    url = 'https://' + upyun_url + file_path + 'voice/' + vtb + '/' + file_name
     return {'code': 200, 'url': url, 'file_name': file_name_no_extend.lstrip().rstrip()}
 
 
